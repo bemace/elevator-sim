@@ -30,12 +30,17 @@ public class BuildingFactory {
 
 			@Override
 			public BigDecimal getHeight() {
-				return floorHeight.add(BigDecimal.ONE).multiply(new BigDecimal(floors));
+				return floorHeight.add(new BigDecimal(2)).multiply(new BigDecimal(floors));
 			}
 
 			@Override
 			public BigDecimal getFloorHeight(int floor) {
 				return floorHeight;
+			}
+
+			@Override
+			public BigDecimal getBaseElevation() {
+				return getFloorElevation(getMinFloorIndex()).subtract(BigDecimal.ONE);
 			}
 
 		};

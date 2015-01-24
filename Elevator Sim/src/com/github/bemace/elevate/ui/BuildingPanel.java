@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,7 +53,10 @@ public class BuildingPanel extends JPanel {
 	}
 
 	protected int convertElevationToY(BigDecimal elevation) {
-		return getHeight() - 1 - elevation.subtract(lowestFloorElevation).multiply(SimulatorInterface.SCALE).intValue();
+		return getHeight()
+				- 1
+				- elevation.subtract(building.getModel().getBaseElevation()).multiply(SimulatorInterface.SCALE)
+						.intValue();
 	}
 
 	protected static int convertDistanceToPixels(BigDecimal distance) {
@@ -72,12 +76,23 @@ public class BuildingPanel extends JPanel {
 			// setOpaque(false);
 
 			JPanel callPanel = new JPanel(new GridLayout(2, 1));
+
 			JButton up = new JButton();
 			up.setToolTipText("Summon elevator to go up");
-			up.setIcon(new ImageIcon("/icons/Call-Up-Dark.png"));
+			URL url = ClassLoader.getSystemResource("Call-Up-Dark.png");
+			if (url != null)
+				up.setIcon(new ImageIcon(url));
+			else
+				up.setText("Up");
+
 			JButton down = new JButton();
 			down.setToolTipText("Summon elevator to go down");
-			down.setIcon(new ImageIcon("/icons/Call-Down-Dark.png"));
+			url = ClassLoader.getSystemResource("Call-Down-Dark.png");
+			if (url != null)
+				down.setIcon(new ImageIcon(url));
+			else
+				down.setText("Dn");
+
 			callPanel.add(up);
 			callPanel.add(down);
 			add(callPanel, BorderLayout.EAST);

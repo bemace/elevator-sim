@@ -39,4 +39,12 @@ public interface BuildingModel {
 	BigDecimal getFloorHeight(int floor);
 
 	BigDecimal getHeight();
+
+	/**
+	 * Gets the building's lowest elevation; think of it as the base of the
+	 * building's foundation.
+	 * 
+	 * @return
+	 */
+	BigDecimal getBaseElevation();
 }

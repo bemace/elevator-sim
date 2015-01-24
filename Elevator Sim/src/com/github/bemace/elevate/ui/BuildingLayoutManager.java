@@ -74,8 +74,10 @@ class BuildingLayoutManager implements LayoutManager {
 	}
 
 	protected int convertElevationToY(Component parent, BigDecimal elevation) {
-		return parent.getHeight() - 1
-				- elevation.subtract(lowestFloorElevation).multiply(SimulatorInterface.SCALE).intValue();
+		return parent.getHeight()
+				- 1
+				- elevation.subtract(building.getModel().getBaseElevation()).multiply(SimulatorInterface.SCALE)
+						.intValue();
 	}
 
 	protected int convertDistanceToPixels(BigDecimal distance) {
