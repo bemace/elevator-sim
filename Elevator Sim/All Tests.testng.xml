@@ -1,0 +1,8 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="All Tests">
+	<test name="All Regression Tests">
+	<packages>
+		<package name=".*" />
+	</packages>
+	</test>
+</suite>

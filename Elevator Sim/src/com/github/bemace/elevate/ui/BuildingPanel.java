@@ -4,66 +4,227 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.math.BigDecimal;
-import java.net.URL;
-import java.util.Collections;
-import java.util.List;
+import java.math.RoundingMode;
 
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
 
 import com.github.bemace.elevate.Building;
+import com.github.bemace.elevate.Direction;
 import com.github.bemace.elevate.ElevatorCar;
 import com.github.bemace.elevate.Floor;
 
-public class BuildingPanel extends JPanel {
+public class BuildingPanel extends JPanel implements Scrollable {
+	private static final long serialVersionUID = 1L;
 	private Building building;
-	private BigDecimal lowestFloorElevation;
+	private BigDecimal scale;
 	private ElevatorShaftPanel shaftPanel;
+	private JPanel floorsPanel;
 
-	public BuildingPanel(Building building) {
+	/**
+	 * 
+	 * @param building
+	 * @param scale
+	 *            pixels per foot
+	 */
+	public BuildingPanel(Building building, BigDecimal scale) {
 		super(new BorderLayout());
 		this.building = building;
+		this.scale = scale;
 		setBackground(Color.GRAY);
-		lowestFloorElevation = building.getFloor(building.getMinFloorIndex()).getElevation();
-
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.weighty = 0;
-		gbc.gridheight = 1;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
 
 		shaftPanel = new ElevatorShaftPanel();
 		add(shaftPanel, BorderLayout.EAST);
 
-		JPanel floorsPanel = new JPanel(new BuildingLayoutManager(building));
+		floorsPanel = new JPanel(new BuildingLayoutManager(building, scale));
 		floorsPanel.setOpaque(false);
 		add(floorsPanel, BorderLayout.CENTER);
 
-		List<Floor> floors = building.getFloors();
-		Collections.reverse(floors);
-		for (Floor floor : floors) {
+		for (Floor floor : building.getFloors())
 			floorsPanel.add(new FloorPanel(floor), floor.getId());
+	}
+
+	/**
+	 * 
+	 * @param elevation
+	 * @param floor
+	 * @return a negative integer, zero, or a positive integer as the elevation
+	 *         is below, within, or above <tt>floor</tt>.
+	 */
+	private int compare(BigDecimal elevation, Floor floor) {
+		if (elevation.compareTo(floor.getElevation()) < 0)
+			return -1;
+
+		if (elevation.compareTo(floor.getElevation().add(floor.getHeight())) >= 0)
+			return 1;
+
+		return 0;
+	}
+
+	/**
+	 * Returns the floor that point lies in.
+	 * 
+	 * @param p
+	 * @return
+	 */
+	public Floor floorAtPoint(Point p, RoundingMode mode) {
+		BigDecimal elevation = convertYtoElevation(p.y);
+		int low = building.getMinFloorIndex();
+		int high = building.getMaxFloorIndex();
+
+		int mid;
+		while (low < high - 1) {
+			mid = (low + high) / 2;
+			Floor floor = building.getFloor(mid);
+
+			int comp = compare(elevation, floor);
+
+			if (comp < 0)
+				high = mid;
+			else if (comp > 0)
+				low = mid;
+			else
+				return floor;
 		}
 
+		Floor above = building.getFloor(high);
+		Floor below = building.getFloor(low);
+
+		if (compare(elevation, above) == 0)
+			return above;
+		else if (compare(elevation, below) == 0)
+			return below;
+
+		if (mode == RoundingMode.UNNECESSARY)
+			return null;
+
+		if (compare(elevation, above) > 0) {
+			// point is above all floors
+			if (mode == RoundingMode.CEILING || mode == RoundingMode.UP)
+				return null;
+			else
+				return above;
+		}
+		else if (compare(elevation, below) < 0) {
+			// point is below all floors
+			if (mode == RoundingMode.FLOOR || mode == RoundingMode.DOWN)
+				return null;
+			else
+				return below;
+		}
+
+		// by now we know the point is between two floors
+
+		if (mode == RoundingMode.CEILING)
+			return building.getFloor(high);
+		else if (mode == RoundingMode.FLOOR)
+			return building.getFloor(low);
+		else if (mode == RoundingMode.UP)
+			return building.getFloor(Math.abs(low) > Math.abs(high) ? low : high);
+		else if (mode == RoundingMode.DOWN)
+			return building.getFloor(Math.abs(low) < Math.abs(high) ? low : high);
+
+		int distanceUp = Math.abs(p.y - convertElevationToY(above.getElevation()));
+		int distanceDown = Math.abs(p.y - convertElevationToY(below.getElevation().add(below.getHeight())));
+
+		if (distanceUp < distanceDown)
+			return above;
+		else if (distanceUp > distanceDown)
+			return below;
+
+		if (mode == RoundingMode.HALF_UP)
+			return above;
+		else if (mode == RoundingMode.HALF_DOWN)
+			return below;
+		else if (mode == RoundingMode.HALF_EVEN)
+			return low % 2 == 0 ? below : above;
+
+		return null;
 	}
 
 	protected int convertElevationToY(BigDecimal elevation) {
-		return getHeight()
-				- 1
-				- elevation.subtract(building.getModel().getBaseElevation()).multiply(SimulatorInterface.SCALE)
-						.intValue();
+		return ((BuildingLayoutManager) floorsPanel.getLayout()).convertElevationToY(elevation);
 	}
 
-	protected static int convertDistanceToPixels(BigDecimal distance) {
-		return distance.multiply(SimulatorInterface.SCALE).intValue();
+	protected BigDecimal convertYtoElevation(int y) {
+		return ((BuildingLayoutManager) floorsPanel.getLayout()).convertYtoElevation(y);
+	}
+
+	protected int convertElevationToYOrig(BigDecimal elevation) {
+		return getHeight() - 1 - elevation.subtract(building.getModel().getBaseElevation()).multiply(scale).intValue();
+	}
+
+	@Override
+	public Dimension getPreferredScrollableViewportSize() {
+		return getPreferredSize();
+	}
+
+	@Override
+	public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
+		if (orientation == SwingConstants.HORIZONTAL)
+			return 1;
+
+		if (direction < 0) { // scrolling up
+			Floor floor = floorAtPoint(visibleRect.getLocation(), RoundingMode.CEILING);
+
+			if (floor == null || floor.isHighest())
+				return visibleRect.y;
+
+			int ceilY = convertElevationToY(floor.getElevation().add(floor.getHeight()));
+			if (visibleRect.y == ceilY) {
+				int floorIndex = floor.getIndex();
+				Floor nextFloor = building.getFloor(floorIndex + 1);
+				return convertElevationToY(nextFloor.getElevation().add(nextFloor.getHeight()));
+			}
+			else
+				return visibleRect.y - ceilY;
+		}
+		else { // scrolling down
+			Point bottomLeft = visibleRect.getLocation();
+			bottomLeft.translate(0, visibleRect.height - 1);
+			Floor floor = floorAtPoint(bottomLeft, RoundingMode.FLOOR);
+
+			if (floor == null || floor.isLowest())
+				return getHeight() - (visibleRect.y + visibleRect.height);
+
+			int floorY = convertElevationToY(floor.getElevation());
+			if (visibleRect.y + visibleRect.height == floorY) {
+				Floor nextFloor = building.getFloor(floor.getIndex() - 1);
+				return convertElevationToY(nextFloor.getElevation());
+			}
+			else
+				return floorY - getHeight();
+		}
+	}
+
+	@Override
+	public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+		return getScrollableUnitIncrement(visibleRect, orientation, direction);
+	}
+
+	@Override
+	public boolean getScrollableTracksViewportHeight() {
+		return false;
+	}
+
+	@Override
+	public boolean getScrollableTracksViewportWidth() {
+		return false;
+	}
+
+	protected int convertDistanceToPixels(BigDecimal distance) {
+		return distance.multiply(scale).intValue();
 	}
 
 	class FloorPanel extends JPanel {
+		private static final long serialVersionUID = 1L;
 		private Floor floor;
 		private JLabel label;
 
@@ -77,25 +238,10 @@ public class BuildingPanel extends JPanel {
 
 			JPanel callPanel = new JPanel(new GridLayout(2, 1));
 
-			JButton up = new JButton();
-			up.setToolTipText("Summon elevator to go up");
-			URL url = ClassLoader.getSystemResource("Call-Up-Dark.png");
-			if (url != null)
-				up.setIcon(new ImageIcon(url));
-			else
-				up.setText("Up");
-
-			JButton down = new JButton();
-			down.setToolTipText("Summon elevator to go down");
-			url = ClassLoader.getSystemResource("Call-Down-Dark.png");
-			if (url != null)
-				down.setIcon(new ImageIcon(url));
-			else
-				down.setText("Dn");
-
-			callPanel.add(up);
-			callPanel.add(down);
+			callPanel.add(new CallButton(floor, Direction.UP));
+			callPanel.add(new CallButton(floor, Direction.DOWN));
 			add(callPanel, BorderLayout.EAST);
+			setMinimumSize(new Dimension(150, 10));
 		}
 
 		public Floor getFloor() {
@@ -105,13 +251,14 @@ public class BuildingPanel extends JPanel {
 	}
 
 	class ElevatorShaftPanel extends JComponent {
+		private static final long serialVersionUID = 1L;
 		private Dimension size;
 		private int leftGap;
 		private int carWidth;
 
 		public ElevatorShaftPanel() {
-			size = new Dimension(convertDistanceToPixels(new BigDecimal(8)), building.getHeight()
-					.multiply(SimulatorInterface.SCALE).intValue());
+			size = new Dimension(convertDistanceToPixels(new BigDecimal(8)), building.getHeight().multiply(scale)
+					.intValue());
 			setMinimumSize(size);
 			setPreferredSize(size);
 			setMaximumSize(size);

@@ -1,12 +1,23 @@
 package com.github.bemace.elevate;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 
 public class BuildingFactory {
 
 	public static Building create(final int floors, final BigDecimal floorHeight) {
 
 		BuildingModel model = new BuildingModel() {
+
+			@Override
+			public BigDecimal getBaseElevation() {
+				return new BigDecimal(0, MathContext.UNLIMITED);
+			}
+
+			@Override
+			public BigDecimal getHeight() {
+				return floorHeight.add(new BigDecimal(1)).multiply(new BigDecimal(floors)).add(BigDecimal.ONE);
+			}
 
 			@Override
 			public int getMinFloorIndex() {
@@ -25,22 +36,13 @@ public class BuildingFactory {
 
 			@Override
 			public BigDecimal getFloorElevation(int floorIndex) {
-				return floorHeight.add(BigDecimal.ONE).multiply(new BigDecimal(floorIndex));
-			}
-
-			@Override
-			public BigDecimal getHeight() {
-				return floorHeight.add(new BigDecimal(2)).multiply(new BigDecimal(floors));
+				return floorHeight.add(BigDecimal.ONE).multiply(new BigDecimal(floorIndex - getMinFloorIndex()))
+						.add(BigDecimal.ONE);
 			}
 
 			@Override
 			public BigDecimal getFloorHeight(int floor) {
 				return floorHeight;
-			}
-
-			@Override
-			public BigDecimal getBaseElevation() {
-				return getFloorElevation(getMinFloorIndex()).subtract(BigDecimal.ONE);
 			}
 
 		};

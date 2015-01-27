@@ -3,7 +3,9 @@ package com.github.bemace.elevate;
 import java.math.BigDecimal;
 
 public interface Floor extends Comparable<Floor> {
-	public String getId();
+	String getId();
+
+	int getIndex();
 
 	/**
 	 * Gets the building which this floor is part of.
@@ -15,4 +17,8 @@ public interface Floor extends Comparable<Floor> {
 	BigDecimal getElevation();
 
 	BigDecimal getHeight();
+
+	boolean isLowest();
+
+	boolean isHighest();
 }

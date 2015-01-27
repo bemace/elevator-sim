@@ -10,6 +10,22 @@ import java.math.BigDecimal;
 public interface BuildingModel {
 
 	/**
+	 * Gets the building's lowest elevation; think of it as the base of the
+	 * building's foundation.
+	 * 
+	 * @return
+	 */
+	BigDecimal getBaseElevation();
+
+	/**
+	 * Gets the total height of the building (in feet), from base of foundation
+	 * to top of roof.
+	 * 
+	 * @return
+	 */
+	BigDecimal getHeight();
+
+	/**
 	 * Gets the index of the lowest floor in the building, which may be
 	 * negative.
 	 * 
@@ -38,13 +54,4 @@ public interface BuildingModel {
 
 	BigDecimal getFloorHeight(int floor);
 
-	BigDecimal getHeight();
-
-	/**
-	 * Gets the building's lowest elevation; think of it as the base of the
-	 * building's foundation.
-	 * 
-	 * @return
-	 */
-	BigDecimal getBaseElevation();
 }

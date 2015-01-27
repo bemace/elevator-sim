@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="icons"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry exported="true" kind="lib" path="lib/guava-18.0.jar">
@@ -13,5 +14,27 @@
 			<attribute name="javadoc_location" value="http://www.joda.org/joda-time/apidocs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="output" path="build"/>
+	<classpathentry kind="lib" path="lib/devel/testng-6.8.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.testng.org/javadocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/devel/fest-util-1.1.6.jar" sourcepath="lib/devel/fest-util-1.1.6-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/Elevator%20Sim/lib/devel/fest-util-1.1.6-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/devel/fest-assert-1.4.jar" sourcepath="lib/devel/fest-assert-1.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/Elevator%20Sim/lib/devel/fest-assert-1.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/devel/mockito-core-1.9.5.jar" sourcepath="lib/devel/mockito-core-1.9.5-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://site.mockito.org/mockito/docs/current"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/devel/com.springsource.org.hamcrest.core-1.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/devel/com.springsource.org.objenesis-1.0.0.jar"/>
+	<classpathentry kind="output" path="build/"/>
 </classpath>

@@ -3,6 +3,7 @@ package com.github.bemace.elevate;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,8 @@ public class Building {
 			floors.add(floor);
 			floorsById.put(floor.getId(), floor);
 		}
+
+		floors = Collections.unmodifiableList(floors);
 
 		elevatorCar = new ElevatorCar(this);
 	}
@@ -101,6 +104,11 @@ public class Building {
 		}
 
 		@Override
+		public int getIndex() {
+			return index;
+		}
+
+		@Override
 		public String getId() {
 			return building.getFloorId(index);
 		}
@@ -128,6 +136,21 @@ public class Building {
 		@Override
 		public int compareTo(Floor other) {
 			return getElevation().compareTo(other.getElevation());
+		}
+
+		@Override
+		public boolean isLowest() {
+			return index == building.getMinFloorIndex();
+		}
+
+		@Override
+		public boolean isHighest() {
+			return index == building.getMaxFloorIndex();
+		}
+
+		@Override
+		public String toString() {
+			return "Floor " + getId() + " @ " + getElevation() + "ft";
 		}
 	}
 

@@ -8,7 +8,6 @@ import java.awt.GraphicsEnvironment;
 import java.math.BigDecimal;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import com.github.bemace.elevate.Building;
@@ -18,7 +17,7 @@ public class SimulatorInterface extends JFrame {
 	private Building building;
 	private ElevatorController controller;
 	/** Pixels per foot. */
-	public static final BigDecimal SCALE = new BigDecimal(6);
+	private static final BigDecimal SCALE = new BigDecimal(6);
 
 	public SimulatorInterface(Building building, ElevatorController controller) {
 		super("Elevator Simulator");
@@ -36,12 +35,7 @@ public class SimulatorInterface extends JFrame {
 	protected void create(Container parent) {
 		parent.setLayout(new BorderLayout());
 
-		JPanel mainPanel = new JPanel(new BorderLayout());
-		mainPanel.add(new BuildingPanel(building), BorderLayout.CENTER);
-		// mainPanel.add(new ElevatorShaftPanel(building), BorderLayout.EAST);
-
-		add(new JScrollPane(mainPanel), BorderLayout.CENTER);
-
+		add(new JScrollPane(new BuildingPanel(building, SCALE)), BorderLayout.CENTER);
 	}
 
 	public void launch() {
