@@ -132,7 +132,7 @@ public class BuildingPanel extends JPanel implements Scrollable {
 			return building.getFloor(Math.abs(low) < Math.abs(high) ? low : high);
 
 		int distanceUp = Math.abs(p.y - convertElevationToY(above.getElevation()));
-		int distanceDown = Math.abs(p.y - convertElevationToY(below.getElevation().add(below.getHeight())));
+		int distanceDown = Math.abs(p.y - convertElevationToY(below.getElevation().add(below.getHeight())) - 1);
 
 		if (distanceUp < distanceDown)
 			return above;
