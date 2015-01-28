@@ -177,11 +177,11 @@ public class BuildingPanel extends JPanel implements Scrollable {
 			if (floor == null || floor.isHighest())
 				return visibleRect.y;
 
-			int ceilY = convertElevationToY(floor.getElevation().add(floor.getHeight()));
+			int ceilY = convertElevationToY(floor.getElevation().add(floor.getHeight())) + 1;
 			if (visibleRect.y == ceilY) {
 				int floorIndex = floor.getIndex();
 				Floor nextFloor = building.getFloor(floorIndex + 1);
-				return convertElevationToY(nextFloor.getElevation().add(nextFloor.getHeight()));
+				return visibleRect.y - convertElevationToY(nextFloor.getElevation().add(nextFloor.getHeight())) - 1;
 			}
 			else
 				return visibleRect.y - ceilY;
