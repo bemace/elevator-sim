@@ -44,7 +44,7 @@ class BuildingLayoutManager implements LayoutManager {
 				continue;
 
 			Floor floor = building.getFloor(floorId);
-			int ceilY = convertElevationToY(floor.getElevation().add(floor.getHeight())) - 1;
+			int ceilY = convertElevationToY(floor.getElevation().add(floor.getHeight())) + 1;
 			int height = convertDistanceToPixels(floor.getHeight());
 
 			c.setBounds(0, ceilY, parent.getWidth(), height);
