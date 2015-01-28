@@ -192,15 +192,15 @@ public class BuildingPanel extends JPanel implements Scrollable {
 			Floor floor = floorAtPoint(bottomLeft, RoundingMode.FLOOR);
 
 			if (floor == null || floor.isLowest())
-				return getHeight() - (visibleRect.y + visibleRect.height);
+				return getHeight() - bottomLeft.y;
 
 			int floorY = convertElevationToY(floor.getElevation());
-			if (visibleRect.y + visibleRect.height == floorY) {
+			if (bottomLeft.y == floorY) {
 				Floor nextFloor = building.getFloor(floor.getIndex() - 1);
-				return convertElevationToY(nextFloor.getElevation());
+				return convertElevationToY(nextFloor.getElevation()) - bottomLeft.y;
 			}
 			else
-				return floorY - getHeight();
+				return Math.abs(floorY - bottomLeft.y);
 		}
 	}
 
